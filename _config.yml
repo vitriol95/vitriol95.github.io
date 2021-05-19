@@ -17,7 +17,7 @@ timezone: Asia/Seoul
 # --------------------------
 title: Vitriol                          # the main title
 
-tagline: 개발및 공부 일지   # it will display as the sub-title
+tagline: 개발 및 공부 일지   # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
   A minimal, portfolio, sidebar,
@@ -36,7 +36,7 @@ twitter:
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
-  name: Vitriol
+  name: vitriol
   email: vitriol951@gmail.com             # change to your email address
   links:
     # The first element serves as the copyright owner's link
