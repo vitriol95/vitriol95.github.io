@@ -4,5 +4,7 @@ icon: fas fa-info
 order: 4
 ---
 
-
-> **Note**: Add Markdown syntax content to file `_tabs/about.md` and it will show up on this page.
+## INFO
+<hr/>
+💌 vitriol95@snu.ac.kr / vitriol951@gmail.com<br>
+👨‍🎓 Seoul National Univ. Civil Environment Engineering
