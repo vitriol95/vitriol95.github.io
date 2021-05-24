@@ -1,5 +1,5 @@
 ---
-title: 백준 2166 다각형의 면적 with Python (BOJ)
+title: 백준 다각형의 면적 2166 with Python (BOJ)
 date: 2021-05-21 22:00:00 +0900
 categories: [Algorithm, problem]
 tags: [algorithm,boj,problem,다각형의 면적,python3,백준]
