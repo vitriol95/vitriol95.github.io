@@ -9,7 +9,7 @@ math: true
 ---
 __문제출처__ : [백준 - 선분 그룹](https://www.acmicpc.net/problem/2162)
 
-<img src="/assets/img/problems/boj2162.PNG">
+<img src="/assets/img/problems/boj2162.png">
 
 # 풀이
 ---

@@ -9,7 +9,7 @@ tags: [algorithm,boj,problem,구현,dfs,시뮬레이션,python3,백준,삼성sw�
 ---
 __문제 출처__ : [백준 - 로봇 청소기](https://www.acmicpc.net/problem/14503) 삼성SW역량테스트 문제
 
-<img src="/assets/img/problems/boj14503.PNG">
+<img src="/assets/img/problems/boj14503.png">
 
 # 풀이
 ---
