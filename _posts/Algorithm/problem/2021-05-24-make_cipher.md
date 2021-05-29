@@ -1,5 +1,5 @@
 ---
-title: 백준 암호 만들기 1759 with Python
+title: 백준 1759 암호 만들기 with Python
 date: 2021-05-24 10:00:00 +0900
 categories: [Algorithm, problem]
 tags: [algorithm,boj,problem,조합,브루트 포스,백트래킹,python3,백준]

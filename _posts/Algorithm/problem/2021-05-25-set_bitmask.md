@@ -1,5 +1,5 @@
 ---
-title: 백준 집합 11723 with Python
+title: 백준 11723 집합 with Python
 date: 2021-05-25 22:00:00 +0900
 categories: [Algorithm, problem]
 tags: [algorithm,boj,problem,집합,비트 마스크,python3,백준]

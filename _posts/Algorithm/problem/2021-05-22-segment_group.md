@@ -1,5 +1,5 @@
 ---
-title: 백준 선분 그룹 2162 with Python (BOJ)
+title: 백준 2162 선분 그룹 with Python (BOJ)
 date: 2021-05-21 22:20:00 +0900
 categories: [Algorithm, problem]
 tags: [algorithm,boj,problem,ccw,python3,union find,선분교차,백준]

@@ -1,5 +1,5 @@
 ---
-title: 백준 적록색약 10026 with Python
+title: 백준 10026 적록색약 with Python
 date: 2021-05-24 15:00:00 +0900
 categories: [Algorithm, problem]
 tags: [algorithm,boj,problem,dfs,bfs,그래프,python3,백준]

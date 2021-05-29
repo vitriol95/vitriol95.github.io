@@ -1,5 +1,5 @@
 ---
-title: 백준 로봇 청소기 14503 with Python (BOJ)
+title: 백준 14503 로봇 청소기 with Python (BOJ)
 date: 2021-05-22 10:00:00 +0900
 categories: [Algorithm, problem]
 tags: [algorithm,boj,problem,구현,dfs,시뮬레이션,python3,백준,삼성sw역량테스트]
