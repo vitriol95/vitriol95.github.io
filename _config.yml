@@ -17,7 +17,8 @@ timezone: Asia/Seoul
 # --------------------------
 title: Vitriol                          # the main title
 
-tagline: 개발 및 공부 일지   # it will display as the sub-title
+tagline: 개발 및 공부 일지
+기억을 적는 시간   # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
   기억을 적는 시간
