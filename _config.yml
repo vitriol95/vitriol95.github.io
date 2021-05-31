@@ -20,9 +20,7 @@ title: Vitriol                          # the main title
 tagline: 개발 및 공부 일지   # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
-  A minimal, portfolio, sidebar,
-  bootstrap Jekyll theme with responsive web design
-  and focuses on text presentation.
+  기억을 적는 시간
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: 'https://vitriol95.github.io'
