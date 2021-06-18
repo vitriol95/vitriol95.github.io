@@ -297,6 +297,7 @@ public class PostController {
         Post post = postService.createNewPost(modelMapper.map(newPostForm, Post.class), account);
         return "redirect:/posts/" + post.getId();
     }
+}
 ```
 > 앞선 AccountController의 회원가입과 굉장히 유사하다.
 
@@ -324,6 +325,7 @@ public class PostService {
 ```
 > 기능은 정말 단순하다. 앞서 post엔티티에 정의해둔 setWriter라는 메서드를 사용하여 양방향 매핑또한 진행해주면 된다.
 
+
 <br>
 이후, 컨트롤러에서는 글이 성공적으로 생성되었으면 /posts/id 로 리다이렉팅 시켜주고 있다. 이에 대한 뷰는 다음과 같다.
 > 사실 이렇게 id로 접근하는 방식은 좋지않다.
@@ -336,8 +338,49 @@ public class PostService {
 3. 세번째 블록이 본문에 해당한다.
 4. 네번째 블록은 Reply들이 위치할 곳에 해당한다.
 
+```java
+package vitriol.mvcservice.modules.post;
+
+@Controller
+@RequiredArgsConstructor
+public class PostController {
+
+    /**
+    이전 코드들
+    */
+
+    private final PostRepository postRepository;
+
+    @GetMapping("/posts/{id}")
+    public String postView(@LoggedInUser Account account, @PathVariable("id") Long id, Model model) {
+        Post post = postRepository.findPostWithUserAndRepliesById(id);
+        if (!post.isOpen()) {
+            // TODO 에러페이지로 돌리기
+            model.addAttribute(account);
+            return "redirect:/";
+        }
+        model.addAttribute(account);
+        model.addAttribute("post", post);
+        return "post/view";
+    }
+}
+```
+> 상세 글보기의 컨트롤러에 해당한다. 여기서 주목할 부분은 postRepository의 `findPostWithUserAndRepliesById(id)`라는 메서드를 호출하게 된다. 이를 통해 post객체를 가져오게 되는데, 이때 post와 연관된 엔티티, 즉 글쓴이(Account)와 코멘트(Reply)를 모두 가져와야한다. 아직 Reply엔티티를 만들지 않았으므로 이 메서드는 나중에 더 수정하도록 하겠다.
+
+```java
+package vitriol.mvcservice.modules.post;
+
+@Transactional(readOnly = true)
+public interface PostRepository extends JpaRepository<Post, Long> {
+
+    // TODO: Reply 까지 Fetch 해야함
+    Post findPostWithUserAndRepliesById(Long id);
+
+}
+```
+
 <br>
-이들의 뷰 구현부는 다음과 같다.
+그리고 이 post 뷰 구현부는 다음과 같다.
 
 ```html
 
@@ -431,3 +474,155 @@ public class Post extends LocalDateTimeEntity {
 
 
 ## Post의 수정 및 삭제 기능
+
+<img src="/assets/img/mvcproject/15.JPG">
+
+'수정'과 '삭제'버튼을 눌러 게시글을 수정하거나 삭제할 수 있도록 기능 구현을 해볼 예정이다. 수정의 경우에는 `/posts/게시글id/update` 페이지를 get 방식으로 가져오며 삭제의 경우에는 `/posts/게시글id/delete`로 post요청을 보낸다.
+> 게시글 뷰 html코드의 11번째, 17번째 라인처럼 inline - form으로 구현했다.
+
+<br>
+이들의 컨트롤러를 살펴보자.
+
+```java
+package vitriol.mvcservice.modules.post;
+
+@Controller
+@RequiredArgsConstructor
+public class PostController {
+
+    /**
+    */
+    
+    @GetMapping("/posts/{id}/update")
+    public String updatePostFormView(@LoggedInUser Account account, @PathVariable Long id, Model model) {
+        Post post = postService.getPostToUpdate(id, account);
+        model.addAttribute(account);
+        model.addAttribute(modelMapper.map(post, NewPostForm.class));
+        return "post/update";
+    }
+
+    @PostMapping("/posts/{id}/update")
+    public String updatePostFromSubmit(@LoggedInUser Account account, @PathVariable Long id, @Valid NewPostForm newPostForm, Model model, Errors errors) {
+        Post post = postService.getPostToUpdate(id, account);
+        if (errors.hasErrors()) {
+            model.addAttribute(account);
+            return "posts/" + id + "/update";
+        }
+        postService.updatePost(post, newPostForm);
+        return "redirect:/posts/" + id;
+    }
+
+    @PostMapping("/posts/{id}/delete")
+    public String deletePostSubmit(@LoggedInUser Account account, @PathVariable Long id) {
+        Post post = postService.getPostToUpdate(id, account);
+        postService.deletePost(post);
+        return "redirect:/";
+    }
+}
+```
+수정에 해당하는 URI `/posts/id/update`로 향하는 @GetMapping과 @PostMapping은 새로운 포스트를 작성할때와 매우 비슷하다. 이때 새로운 Dto를 만드는 것보다는 기존의 NewPostForm클래스를 재사용해주었다.
+
+<br>
+18번째 라인부터 시작하는 updatePostFormSubmit 메서드는 실제 post요청이 들어올 때 이를 수정하는 핸들러에 해당한다. 가장 먼저 postService의 getPostToUpdate를 호출하고 있다. PostService의 수정 부분을 살펴보자.
+
+```java
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class PostService {
+
+    /**
+    이전 코드들
+    */
+
+    private final ModelMapper modelMapper;
+
+    public Post getPostToUpdate(Long id, Account account) {
+        Post post = postRepository.findPostWithAccountById(id);
+        validateWriter(account, post);
+        return post;
+    }
+
+    private void validateWriter(Account account, Post post) {
+        if (!post.isWriter(account)) {
+            throw new AccessDeniedException("작성자가 아닙니다.");
+        }
+    }
+
+    public void updatePost(Post post, NewPostForm newPostForm) {
+        modelMapper.map(newPostForm, post);
+    }
+
+    public void deletePost(Post post) {
+        postRepository.delete(post);
+    }
+}
+```
+마지막 두개의 메서는 실제 트랜잭션안에서 글의 수정과 삭제를 진행해주고 있다.
+제일 첫 메서드의 getPostToUpdate메서드의 경우에는 다음과 같은 로직이 진행된다.
+
+1. 현재 계정이 그 글의 작성자인지 확인한다. (validateWriter 메서드)
+> 사실 이것은 프론트뷰에서도 체크를 해주고 있지만, 더블체킹을 하기 위해 백엔드 부분에서도 구현해주었다.
+2. 작성자가 아니라면 AccessDeniedException을 던진다.
+3. 작성자가 맞다면 postRepository의 findPostWithAccountById를 불러온다. 이 메서드는 다음과 같다.
+
+```java
+package vitriol.mvcservice.modules.post;
+
+@Transactional(readOnly = true)
+public interface PostRepository extends JpaRepository<Post, Long> {
+
+    /**
+    이전 코드들
+    */
+
+    @EntityGraph(attributePaths = "account",type = EntityGraph.EntityGraphType.LOAD)
+    Post findPostWithAccountById(Long id);
+}
+```
+> @EntityGraph를 해주어 id로 query를 진행할때 account까지 조인해서 가져오게 된다.
+
+<br>
+그리고 이전의 post의 isWriter함수는 UserAccount에 대해서만 진행을 했지만, account에 대해서도 가능해야하므로 이를 오버로딩하였다.
+
+```java
+@Getter
+@Setter
+@Table(name = "post")
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+public class Post extends LocalDateTimeEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Account account;
+
+    private String title;
+    private String introduction;
+
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private String description;
+
+    private boolean open;
+
+    public void setWriter(Account account) {
+        this.account = account;
+        account.getPosts().add(this);
+    }
+
+    public boolean isWriter(UserAccount userAccount) {
+        return this.account.equals(userAccount.getAccount());
+    }
+
+    public boolean isWriter(Account account) {
+        return this.account.equals(account);
+    } // 추가된 메서드(isWriter 오버로딩)
+}
+```
+
+다음 시간에는 postController에 대한 테스트를 진행해보고 쿼리 효율을 따져보려한다. 필요한 부분이 있다면 보충하고, Reply엔티티 또한 만들어보려 한다.
