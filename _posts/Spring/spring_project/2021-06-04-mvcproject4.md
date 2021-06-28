@@ -1,6 +1,6 @@
 ---
 title: 스프링 mvc 프로젝트 + AWS EC2에 빌드까지(4)
-date: 2021-06-03 11:00:00 +0900
+date: 2021-06-04 11:00:00 +0900
 categories: [Spring, spring_project]
 tags: [spring,spring mvc,springboot,springframework,java]
 ---
@@ -453,3 +453,78 @@ class PostControllerTest {
 ```
 > 역시 @WithUserDetails를 이용하여 진행해야한다. 수정과 삭제버튼의 경우는 글쓴이가 아닌 사람들에게는 보이지 않아야한다.
 
+102번째 라인과 121번째 라인에는 실제 response body로 들어온 html파일의 컨텐츠를 검사하고 있다. 이부분을 좀 더 효율적으로 바꾸려면 html내의 요소들의 Xpath를 이용하면 더 효율적일 수 있다.
+
+---
+
+# Reply 객체 만들기
+
+Reply 엔티티의 경우 필요한 프로퍼티는 다음과 같다.
+1. 작성자가 누구인지 --> account
+2. 어떤 post에 달려있는지 --> post
+3. 본문 내용
+
+```java
+@Entity
+@Table(name = "reply")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class Reply extends LocalDateTimeEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Account account;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
+
+    private String description;
+
+}
+```
+
+이들의 확장성을 생각하여 Post 엔티티와 Account 엔티티에도 양방향 매핑을 진행해 주었다.
+
+```java
+// Account.class 수정
+@Entity
+@Table(name = "account")
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id", callSuper = false)
+@Getter
+@Setter
+public class Account extends LocalDateTimeEntity {
+
+    /**
+    이전 코드들
+    */
+    @OneToMany(mappedBy = "account")
+    private List<Reply> replies = new ArrayList<>();
+
+}
+
+
+// Post.class 수정
+@Getter
+@Setter
+@Table(name = "post")
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+public class Post extends LocalDateTimeEntity {
+
+    /**
+    이전 코드들
+    */
+    @OneToMany(mappedBy = "post")
+    private List<Reply> replies = new ArrayList<>();
+}
+```
+
+이러한 엔티티 객체가 들어옴으로 인해, PostController에서 보여주던 핸들러와 뷰도 변화가 생길 것이다. 다음시간에는 앞서 말한 변화적용과 함께 Reply의 등록 및 삭제기능을 구현해 보자.

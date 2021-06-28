@@ -625,4 +625,4 @@ public class Post extends LocalDateTimeEntity {
 }
 ```
 
-다음 시간에는 postController에 대한 테스트를 진행해보고 쿼리 효율을 따져보려한다. 필요한 부분이 있다면 보충하고, Reply엔티티 또한 만들어보려 한다.
+다음 시간에는 postController에 대한 테스트를 진행해보며 필요한 부분이 있다면 보충하고, Reply엔티티 또한 만들어보려 한다.
