@@ -605,7 +605,7 @@ Hibernate:
 
 ### 좀 더 효율적인 방식으로 바꾸어 보기(글 작성)
 
-필자는 이 두번째 쿼리를 없애버릴 수 있겠다는 생각을 했다. 처음 Detached 상태인 account를 가져올 때, 관련된 post 까지 모두 가져오면 되지 않겠는가? 따라서 서비스단에서 Detached 상태인 Account를 가져오는 쿼리를 다음과 같이 수정했다.
+필자는 이 두번째 쿼리를 없애버릴 수 있겠다는 생각을 했다. 처음 Detached 상태인 account를 가져올 때, 관련된 post 까지 모두 가져오면 되지 않겠는가? <br> 따라서 서비스단에서 Detached 상태인 Account를 가져오는 쿼리를 다음과 같이 수정했다.
 
 ```java
 // Service
@@ -800,8 +800,10 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
 }
 ```
 그리고 댓글이 4개 달렸을 시 위 쿼리에 의한 DB상태는 다음과 같다.
+
 <img src="/assets/img/mvcproject/33.JPG">
-> 1:N 상황에 해당하므로 댓글이 4개 달렸을시 다음과 같은 결과가 나오게 된다.
+
+> 1:N 상황에 해당하므로 댓글이 4개 달렸을시 다음과 같은 결과가 나오게 된다. 그리고 @Query에 distinct는 사실 없어도 된다.
 
 ---
 
@@ -916,5 +918,463 @@ public void updatePost(Post post, NewPostForm newPostForm) {
     modelMapper.map(newPostForm, post);
 }
 ```
+코드를 기반으로 예측한 쿼리 순서는 다음과 같을 것이다.
+1. 가장먼저 글 수정뷰 단에서의 post객체를 가져온 것 같이, `postService.getPostToUpdate`로 인해 post와 글쓴이 정보를 가져올 것이다. (__SELECT문__)
+> 곧바로 validating을 진행한다. 이때 발생하는 쿼리는 없다.
+2. 이후, `postService.updatePost`로 인해 post객체가 변경된 객체로 채워지게 되며 이때 __update__ 문이 나갈것이다.
 
+<br>
+실제 쿼리는 다음과 같았다.
 
+```text
+Hibernate: 
+    select
+        post0_.id as id1_1_0_,
+        account1_.id as id1_0_1_,
+        post0_.created_date as created_2_1_0_,
+        post0_.modified_date as modified3_1_0_,
+        post0_.account_id as account_9_1_0_,
+        post0_.description as descript4_1_0_,
+        post0_.introduction as introduc5_1_0_,
+        post0_.open as open6_1_0_,
+        post0_.reply_count as reply_co7_1_0_,
+        post0_.title as title8_1_0_,
+        account1_.created_date as created_2_0_1_,
+        account1_.modified_date as modified3_0_1_,
+        account1_.bio as bio4_0_1_,
+        account1_.email as email5_0_1_,
+        account1_.nickname as nickname6_0_1_,
+        account1_.password as password7_0_1_,
+        account1_.post_count as post_cou8_0_1_,
+        account1_.profile_image as profile_9_0_1_,
+        account1_.reply_count as reply_c10_0_1_ 
+    from
+        post post0_ 
+    left outer join
+        account account1_ 
+            on post0_.account_id=account1_.id 
+    where
+        post0_.id=?
+```
+
+__SELECT__ 문 하나만 나가고 있음을 확인할 수 있었다. 이는 `postService.getPostToUpdate`에 의한 쿼리이다. 그렇다면 Update문은 어떻게 된건가?
+
+<br>
+이에 대한 해답은 정말 단순하다. 위 메서드에 의해 수정해야할 객체는 이미 영속화 되어있으므로(Managed 상태이므로) 정보를 수정하면 바로 Dirty Checking이 적용된다. 따라서 __UPDATE__ 쿼리는 나가지 않는다.
+
+### 글 삭제 POST 요청
+다음으로 글 삭제 요청에 대해 살펴보자. 사실 이 부분에 대한 쿼리가 정말 어렵다. 왜냐하면 다음과 같은 요청을 해주어야 하기 때문이다.
+
+1. Post와 Reply의 연관관계의 주인은 Reply에 해당한다. 하지만 참조 무결성 조건을 Cascade로 주었기 때문에 Post에 딸려있는 댓글 객체들이 모두 삭제되어야 한다.
+2. Account(글쓴이)와 Post는 양방향 매핑 관계이므로 account가 가지고 있는 post목록에서 본 post를 지워야한다. 또한 postCount를 1내려주어야한다.
+3. 딸려 있는 Reply가 삭제될 경우 이 댓글을 달았던 account객체들의 replyCount를 1씩 내려주어야 한다.
+> 댓글 수가 많은 글이 삭제될 수록 쿼리가 더 어마어마 해질것 같다..
+
+<br>
+가장 먼저 쿼리가 어떤 흐름으로 나가게 될지, 코드를 통해 살펴보자.
+
+```java
+// PostController.java
+
+@PostMapping("/posts/{id}/delete")
+public String deletePostSubmit(@LoggedInUser Account account, @PathVariable Long id) {
+    Post post = postService.getPostToDelete(id, account);
+    postService.deletePost(post, account);
+    return "redirect:/";
+}
+
+// PostService.java
+
+public Post getPostToDelete(Long id, Account account) {
+    Post post = postRepository.findPostWithAccountAndRepliesById(id);
+    validateWriter(account, post);
+    return post;
+}
+
+public void deletePost(Post post) {
+
+    post.unsetWriter(post.getAccount());
+    post.getReplies().forEach(reply -> reply.unsetWriter(reply.getAccount()));
+    postRepository.delete(post);
+}
+
+// PostRepository.java
+
+@Query(value = "select distinct p from Post p join fetch p.account left join fetch p.replies where p.id = :id")
+Post findPostWithAccountAndRepliesById(@Param("id") Long id);
+
+// Post.java
+
+/** 양방향 매핑 메서드 With Post*/
+public void unsetWriter(Account account) {
+    account.postRemove(this);
+}
+
+// Reply.java
+
+/** 양방향 매핑 메서드 With Account */
+public void unsetWriter(Account account) {
+    account.replyRemove(this);
+}
+
+// Account.java
+public void postRemove(Post post) {
+    this.getPosts().remove(post);
+    this.postCount--;
+}
+
+public void replyRemove(Reply reply) {
+    this.getReplies().remove(reply);
+    this.replyCount--;
+}
+```
+
+많은 요구사항처럼, 코드양이 적지 않다. 일단 흐름을 따라 쿼리가 어떻게 작성될지 예상해보자.
+
+### 댓글이 없을 경우
+
+1. 가장먼저 `postService.getPostToDelete`를 호출한다. 여기서는 `postRepository.findPostWithAccountAndRepliesById`를 통해 post의 account(글쓴이), replies(댓글들)을 모두 가져오게된다. (__SELECT__ 문)
+> 이 replies를 가져오게 되면. Reply와 Account(댓글쓴이)는 fetch 타입이 EAGER이므로 자동으로 댓글쓴이들 까지 모두 가져온다.
+2. 이후 글쓴이 확인을 위한 validating을 진행하고 이후 `postService.deletePost`를 호출한다. 
+> 역시 validating의 경우 추가 쿼리는 발생하지 않는다.
+3. 양방향 매핑 메서드인 `post.unsetWriter`를 호출한다. 이는 post의 글쓴이 객체를 파라미터로 넘긴다. 이 글쓴이 객체(Account)는 이미 페치조인으로 긁어왔기에 추가 쿼리는 발생하지 않는다.
+4. `post.unsetWriter`는 `account.replyRemove()`를 부르게 되고 여기서 `this(account).getPosts()`에 의해 __SELECT__ 문이 발생하게 될 것이다.
+> Account(글쓴이)와 Post의 fetch 타입은 LAZY 이기 때문이다.
+5. `this.getPosts()`로 가져온 목록에서 삭제할 post를 없애고, postCount를 1내려준다. 이때 Account에 대한 __UPDATE__ 문이 나가게 될 것이다.
+6. 마지막으로 `postRepository.delete()`에 의해 post가 삭제되는 __DELETE__ 문이 나간다.
+
+<br>
+실제 쿼리는 다음과 같았다.
+```text
+Hibernate: 
+    select
+        distinct post0_.id as id1_1_0_,
+        account1_.id as id1_0_1_,
+        replies2_.id as id1_2_2_,
+        post0_.created_date as created_2_1_0_,
+        post0_.modified_date as modified3_1_0_,
+        post0_.account_id as account_9_1_0_,
+        post0_.description as descript4_1_0_,
+        post0_.introduction as introduc5_1_0_,
+        post0_.open as open6_1_0_,
+        post0_.reply_count as reply_co7_1_0_,
+        post0_.title as title8_1_0_,
+        account1_.created_date as created_2_0_1_,
+        account1_.modified_date as modified3_0_1_,
+        account1_.bio as bio4_0_1_,
+        account1_.email as email5_0_1_,
+        account1_.nickname as nickname6_0_1_,
+        account1_.password as password7_0_1_,
+        account1_.post_count as post_cou8_0_1_,
+        account1_.profile_image as profile_9_0_1_,
+        account1_.reply_count as reply_c10_0_1_,
+        replies2_.created_date as created_2_2_2_,
+        replies2_.modified_date as modified3_2_2_,
+        replies2_.account_id as account_5_2_2_,
+        replies2_.description as descript4_2_2_,
+        replies2_.post_id as post_id6_2_2_,
+        replies2_.post_id as post_id6_2_0__,
+        replies2_.id as id1_2_0__ 
+    from
+        post post0_ 
+    inner join
+        account account1_ 
+            on post0_.account_id=account1_.id 
+    left outer join
+        reply replies2_ 
+            on post0_.id=replies2_.post_id 
+    where
+        post0_.id=?
+Hibernate: 
+    select
+        posts0_.account_id as account_9_1_0_,
+        posts0_.id as id1_1_0_,
+        posts0_.id as id1_1_1_,
+        posts0_.created_date as created_2_1_1_,
+        posts0_.modified_date as modified3_1_1_,
+        posts0_.account_id as account_9_1_1_,
+        posts0_.description as descript4_1_1_,
+        posts0_.introduction as introduc5_1_1_,
+        posts0_.open as open6_1_1_,
+        posts0_.reply_count as reply_co7_1_1_,
+        posts0_.title as title8_1_1_ 
+    from
+        post posts0_ 
+    where
+        posts0_.account_id=?
+Hibernate: 
+    update
+        account 
+    set
+        created_date=?,
+        modified_date=?,
+        bio=?,
+        email=?,
+        nickname=?,
+        password=?,
+        post_count=?,
+        profile_image=?,
+        reply_count=? 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        post 
+    where
+        id=?
+```
+앞서 이야기한대로 2개의 SELECT문과 1개의 UPDATE문, 1개의 DELETE문이 나가고 있었다. 예상이 맞아서 나름 만족스럽다.. 😀
+<br>
+
+### 댓글이 있는 경우
+
+앞선 코드에서 21번째 라인에 해당하는 코드가 적용되게 된다. 전체적인 순서는 댓글이 없는 경우를 따르지만, 여기서 추가로 발생하는 쿼리들이 존재한다.
+
+1. 댓글이 없는 경우의 1~5 과정을 모두 따른다. 이때 __2개의 SELECT__ 문과 __1개의 UPDATE__ 문이 나가게 된다.
+2. 이후 `post.getRepies().forEach()`를 수행한다. post내의 replies들은 모두 페치조인에 의해 가져왔으므로 추가 쿼리는 발생하지 않는다. 하지만 forEach()내의 람다식을 살펴보면 `reply.unsetWriter()`이 반복되고 있다.
+3. `reply.unsetWriter()`에 파라미터는 reply의 account(댓글쓴이)가 될 것이다. 이때 Reply와 Account는 fetch타입이 EAGER이므로 추가 쿼리가 필요하지 않는다.
+4. `reply.unsetWriter()`는 `account.replyRemove()`를 호출한다. 이때 `this.getReplies()`로 인해 replies를 가져오는 __SELECT__ 문이 발생할 것이다. 이후 이 리스트 내에서 삭제될 reply를 지운다.
+5. 이후 account의 replyCount가 1감소되므로 __UPDATE__ 문이 발생한다.
+6. 마지막으로 글이 삭제되는 __DELETE__ 문이 나가게 된다. 그리고 참조 제약조건(Cascade)에 의해 reply도 삭제되는 __DELETE__ 문이 나가게 된다.
+
+<br>
+만약 댓글이 3개가 달린 상황이라고 생각해보자(글쓴이와 댓글쓴이가 모두 다르다고 가정). 이때 각 댓글쓴이마다 replies를 가져와야하므로 SELECT문이 3개가 나가게 될 것이다. <br>그리고 각 댓글쓴이(account)의 replyCount가 1씩 내려가야 하므로 3개의 UPDATE문이 나간다. 마지막으로 replies에 대한 DELETE문도 3개가 나갈것이다.
+
+<br>
+댓글을 3개 달아놓고, 테스트 해보았다.
+
+```text
+Hibernate: 
+    select
+        distinct post0_.id as id1_1_0_,
+        account1_.id as id1_0_1_,
+        replies2_.id as id1_2_2_,
+        post0_.created_date as created_2_1_0_,
+        post0_.modified_date as modified3_1_0_,
+        post0_.account_id as account_9_1_0_,
+        post0_.description as descript4_1_0_,
+        post0_.introduction as introduc5_1_0_,
+        post0_.open as open6_1_0_,
+        post0_.reply_count as reply_co7_1_0_,
+        post0_.title as title8_1_0_,
+        account1_.created_date as created_2_0_1_,
+        account1_.modified_date as modified3_0_1_,
+        account1_.bio as bio4_0_1_,
+        account1_.email as email5_0_1_,
+        account1_.nickname as nickname6_0_1_,
+        account1_.password as password7_0_1_,
+        account1_.post_count as post_cou8_0_1_,
+        account1_.profile_image as profile_9_0_1_,
+        account1_.reply_count as reply_c10_0_1_,
+        replies2_.created_date as created_2_2_2_,
+        replies2_.modified_date as modified3_2_2_,
+        replies2_.account_id as account_5_2_2_,
+        replies2_.description as descript4_2_2_,
+        replies2_.post_id as post_id6_2_2_,
+        replies2_.post_id as post_id6_2_0__,
+        replies2_.id as id1_2_0__ 
+    from
+        post post0_ 
+    inner join
+        account account1_ 
+            on post0_.account_id=account1_.id 
+    left outer join
+        reply replies2_ 
+            on post0_.id=replies2_.post_id 
+    where
+        post0_.id=?
+Hibernate: **************!
+    select
+        account0_.id as id1_0_0_,
+        account0_.created_date as created_2_0_0_,
+        account0_.modified_date as modified3_0_0_,
+        account0_.bio as bio4_0_0_,
+        account0_.email as email5_0_0_,
+        account0_.nickname as nickname6_0_0_,
+        account0_.password as password7_0_0_,
+        account0_.post_count as post_cou8_0_0_,
+        account0_.profile_image as profile_9_0_0_,
+        account0_.reply_count as reply_c10_0_0_ 
+    from
+        account account0_ 
+    where
+        account0_.id=?
+Hibernate: **************!
+    select
+        account0_.id as id1_0_0_,
+        account0_.created_date as created_2_0_0_,
+        account0_.modified_date as modified3_0_0_,
+        account0_.bio as bio4_0_0_,
+        account0_.email as email5_0_0_,
+        account0_.nickname as nickname6_0_0_,
+        account0_.password as password7_0_0_,
+        account0_.post_count as post_cou8_0_0_,
+        account0_.profile_image as profile_9_0_0_,
+        account0_.reply_count as reply_c10_0_0_ 
+    from
+        account account0_ 
+    where
+        account0_.id=?
+Hibernate: **************!
+    select
+        account0_.id as id1_0_0_,
+        account0_.created_date as created_2_0_0_,
+        account0_.modified_date as modified3_0_0_,
+        account0_.bio as bio4_0_0_,
+        account0_.email as email5_0_0_,
+        account0_.nickname as nickname6_0_0_,
+        account0_.password as password7_0_0_,
+        account0_.post_count as post_cou8_0_0_,
+        account0_.profile_image as profile_9_0_0_,
+        account0_.reply_count as reply_c10_0_0_ 
+    from
+        account account0_ 
+    where
+        account0_.id=?
+Hibernate: 
+    select
+        posts0_.account_id as account_9_1_0_,
+        posts0_.id as id1_1_0_,
+        posts0_.id as id1_1_1_,
+        posts0_.created_date as created_2_1_1_,
+        posts0_.modified_date as modified3_1_1_,
+        posts0_.account_id as account_9_1_1_,
+        posts0_.description as descript4_1_1_,
+        posts0_.introduction as introduc5_1_1_,
+        posts0_.open as open6_1_1_,
+        posts0_.reply_count as reply_co7_1_1_,
+        posts0_.title as title8_1_1_ 
+    from
+        post posts0_ 
+    where
+        posts0_.account_id=?
+Hibernate: 
+    select
+        replies0_.account_id as account_5_2_0_,
+        replies0_.id as id1_2_0_,
+        replies0_.id as id1_2_1_,
+        replies0_.created_date as created_2_2_1_,
+        replies0_.modified_date as modified3_2_1_,
+        replies0_.account_id as account_5_2_1_,
+        replies0_.description as descript4_2_1_,
+        replies0_.post_id as post_id6_2_1_ 
+    from
+        reply replies0_ 
+    where
+        replies0_.account_id=?
+Hibernate: 
+    select
+        replies0_.account_id as account_5_2_0_,
+        replies0_.id as id1_2_0_,
+        replies0_.id as id1_2_1_,
+        replies0_.created_date as created_2_2_1_,
+        replies0_.modified_date as modified3_2_1_,
+        replies0_.account_id as account_5_2_1_,
+        replies0_.description as descript4_2_1_,
+        replies0_.post_id as post_id6_2_1_ 
+    from
+        reply replies0_ 
+    where
+        replies0_.account_id=?
+Hibernate: 
+    select
+        replies0_.account_id as account_5_2_0_,
+        replies0_.id as id1_2_0_,
+        replies0_.id as id1_2_1_,
+        replies0_.created_date as created_2_2_1_,
+        replies0_.modified_date as modified3_2_1_,
+        replies0_.account_id as account_5_2_1_,
+        replies0_.description as descript4_2_1_,
+        replies0_.post_id as post_id6_2_1_ 
+    from
+        reply replies0_ 
+    where
+        replies0_.account_id=?
+Hibernate: 
+    update
+        account 
+    set
+        created_date=?,
+        modified_date=?,
+        bio=?,
+        email=?,
+        nickname=?,
+        password=?,
+        post_count=?,
+        profile_image=?,
+        reply_count=? 
+    where
+        id=?
+Hibernate: 
+    update
+        account 
+    set
+        created_date=?,
+        modified_date=?,
+        bio=?,
+        email=?,
+        nickname=?,
+        password=?,
+        post_count=?,
+        profile_image=?,
+        reply_count=? 
+    where
+        id=?
+Hibernate: 
+    update
+        account 
+    set
+        created_date=?,
+        modified_date=?,
+        bio=?,
+        email=?,
+        nickname=?,
+        password=?,
+        post_count=?,
+        profile_image=?,
+        reply_count=? 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        reply 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        reply 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        reply 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        post 
+    where
+        id=?
+
+```
+이야기 한 대로 쿼리가 나가고 있다. 댓글이 3개인 상황이지만, 쿼리 개수가 무시무시했다..
+
+<br>
+그리고 ****! 쳐저있는 쿼리들은 예상하지 못한 쿼리들이다. Account객체 3개를 SELECT해오고 있는데, 댓글쓴이를 또 다시 가져오고 있는 상황에 해당한다. <br>😅 아.. 이걸 생각 못하고 있었다. 댓글쓴이들은 UPDATE문(replyCount--)이 나가야 하기에 Managed상태로 올려놓아야 한다. 따라서 쿼리안에 댓글쓴이도 함께 페치조인하여 가져와야한다.
+> 흔히 말하는 1 + N 문제이다. 이를 구현하면 댓글쓴이에 대한 SELECT문 3개는 없어지게 될 것이다.
+
+<br>
+이 외에 쿼리를 더 효율적으로 만드는 방법은 없을까? 필자는 아래 세가지를 더 손볼 수 있을 것이라 생각했다.
+
+1. 댓글쓴이들의 replies들을 가져오는 과정을 한꺼번에 수행해보자.
+2. 댓글쓴이의 replyCount--에 의한 UPDATE 쿼리를 한번에 수행해보자. (Bulk Update)
+3. 삭제되는 reply들을 한번에 삭제해보자. (Bulk Delete)
+> 1~3 모두 쿼리의 조건절을 where id in (1,2,3) 식으로 해결할 수 있을것이다.
+
+<br>
+일단 1 + N 문제를 해결하기 위해 새로운 쿼리 메서드를 만들었다.
