@@ -309,18 +309,15 @@ Hibernate:
 
 <br>
 따라서 Post.java를 다음과 같이 수정해 delete를 진행하려고 했었다.
-
 ```java
 // Post.java
 @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 private List<Reply> replies = new ArrayList<>();
 ```
 참조 무결성 제약조건을 cascade로 설정하여 부모 릴레이션인 post가 삭제되면 replies가 따라서 삭제되게 된다. 또한 orphanRemoval을 true로 주어 참조가 끊어진 자식객체를 삭제하도록한다. 이렇게되면 post와 거기에 연관된 reply들은 생명주기가 같아진다.
-
 <br>
 이렇게 설정해주면 reply를 delete할 필요없이 post만 delete해주면 된다. 하지만 __이때는 딸려있는 reply각각을 delete하게 된다__ 즉, 댓글이 3개인경우 delete문이 3개가 나가게 되는 것이다.
 > 일종의 1+N 문제라고 봐도 되려나..
-
 ```text
 Hibernate: 
     delete 
@@ -328,31 +325,10 @@ Hibernate:
         reply 
     where
         id=?
-Hibernate: 
-    delete 
-    from
-        reply 
-    where
-        id=?
-Hibernate: 
-    delete 
-    from
-        reply 
-    where
-        id=?
-```
-> cascade로 제약조건을 주고 post를 지웠을 시, 댓글이 3개 달려있었다면 다음과 같이 쿼리가 나가게 된다.
-
-<br>
-필자는 이를 하나로 줄여보기 위해 bulkDelete문을 새로 정의했고 이를 사용하여 하나의 쿼리로 해결해 보았다.
-
-```java
-// ReplyRepository.java
-@Transactional
-@Modifying(flushAutomatically = true)
+@@ -352,4 +353,466 @@
 @Query("delete from Reply r where r.id in (:ids)")
 int bulkDeleteByRemovePost(@Param("ids") Set<Long> ids);
-
+```
 ```
 따라서 delete 문을 where ~ in 조건을 이용해 bulkDelete 할 수 있다. 이때 in안에 들어가는 객체 사이즈의 최대값 또한 조절해 줄 수 있다. 필자는 아래와 같이 설정해 주었다.
 
@@ -368,7 +344,6 @@ int bulkDeleteByRemovePost(@Param("ids") Set<Long> ids);
 
 그리고 이후에 @Modifying 어노테이션에 주목해보자. 이 쿼리는 조회쿼리를 제외한 변경, 삭제, 삽입등의 작업이 일어날 때 작성해주어야 하는 어노테이션에 해당한다. 옵션은 두가지가 존재한다. clear / flushAutomatically가 그것이다.
 > 둘다 default는 false이다.
-
 <br>
 이 두가지는 '동기화'를 위해 존재한다고 봐도 무방하다. 많은 경우 두가지를 true로 놓는 경우가 안전하지만, 필자는 여기서 clearAutomatically는 false로 설정하였다. 이를 true로 놓게되면 영속성 컨텍스트를 모두 비워두게 된다. 
 
@@ -406,31 +381,24 @@ public ResponseEntity replyFormSubmit(@PathVariable Long id, @LoggedInUser Accou
     postService.createNewReply(modelMapper.map(newReplyForm, Reply.class), post, account);
     return ResponseEntity.ok().build();
 }
-
 // PostService.java
 public Post getVanillaPost(Long id) {
     return postRepository.findPostById(id);
 }
-
 public void createNewReply(Reply reply, Post post, Account account) {
     Account writer = accountRepository.findByEmail(account.getEmail());
-
     reply.setWriter(writer);
     reply.postedOn(post);
     replyRepository.save(reply);
 }
-
 // PostRepository.java
 Post findPostById(Long id);
-
 // Reply.java
-
 /** 양방향 매핑 메서드 With Post */
 public void postedOn(Post post) {
     this.post = post;
     post.replyAdd(this);
 }
-
 public void setWriter(Account account) {
     this.account = account;
 }
@@ -512,26 +480,20 @@ public String deleteReplySubmit(@PathVariable("postId") Long id, @PathVariable("
     postService.deleteReply(reply, post);
     return "redirect:/posts/" + id;
 }
-
 // PostService.java
 public Post getVanillaPost(Long id) {
     return postRepository.findPostById(id);
 }
-
 public void deleteReply(Reply reply, Post post) {
-
     reply.depostedOn(post);
     replyRepository.delete(reply);
 }
-
 // PostRepository.java
 Reply findReplyById(Long id);
-
 // Reply.java
 public void depostedOn(Post post) {
     post.replyRemove(this);
 }
-
 // Post.java
 public void replyRemove(Reply reply) {
     this.getReplies().remove(reply);
@@ -612,7 +574,6 @@ Reply에 대한 __SELECT__ 쿼리가 나간다.
 3. 세번째 쿼리는 (*)처리가 되어있다. 이는 `reply.depostedOn` 메서드를 따라가면 알 수 있다. 이는 양방향 매핑을 해제하기 위해서 존재하며, post가 가지고있는 replies 목록중에 지울 reply를 제거한다. 이 과정에서 3번째 SELECT문이 나가게 된다. Post와 reply는 fetchType이 Lazy이므로 발생하는 현상이다.
 > 이는 더 좋은 방법으로 수정할 수 있을 것 같다.
 4. 이후, post의 replyCount를 1내려주는 __UPDATE__ 쿼리가 나가며 댓글을 삭제하는 __DELETE__ 쿼리가 나가게 된다.
-
 
 ### 더 효율적인 방법으로 바꾸어보자.
 (*)표시되어있는 쿼리이자, 3번 상황을 좀 더 효율적으로 바꿀 수 있을 것 같다. 처음 Post객체를 가져올때 가지고 있는 reply를 모두 페치조인하여 가져오면 저 불필요한 SELECT쿼리를 없앨 수 있다. 아래와 같이 Post를 가져오는 쿼리를 수정해 보았다.
@@ -711,7 +672,6 @@ Hibernate:
         count(*) as col_0_0_ 
     from
         account account0_
-
 Hibernate: 
     select
         account0_.id as id1_0_,
@@ -727,7 +687,6 @@ Hibernate:
         account account0_ 
     order by
         account0_.post_count desc limit ?
-
 ```
 정렬을 게시글 개수의 내림차순으로 진행한것도 잘 적용이 되어있다.
 
@@ -748,10 +707,8 @@ public String searchPost(@PageableDefault(size = 12, sort = "createdDate", direc
     model.addAttribute("postPage", postPage);
     model.addAttribute("keyword", keyword);
     model.addAttribute("sortProperty", pageable.getSort().toString().contains("createdDate") ? "createdDate" : "replyCount");
-
     return "search";
 }
-
 // PostRepositoryExImpl.java
 @Override
 public Page<Post> findByKeyword(String keyword, Pageable pageable) {
@@ -759,7 +716,6 @@ public Page<Post> findByKeyword(String keyword, Pageable pageable) {
     JPQLQuery<Post> query = from(post).where(post.open.isTrue()
             .and(post.title.containsIgnoreCase(keyword)))
             .leftJoin(post.account, QAccount.account).fetchJoin();
-
     JPQLQuery<Post> pageableQuery = getQuerydsl().applyPagination(pageable, query);
     QueryResults<Post> fetchResults = pageableQuery.fetchResults();
     return new PageImpl<>(fetchResults.getResults(), pageable, fetchResults.getTotal());
