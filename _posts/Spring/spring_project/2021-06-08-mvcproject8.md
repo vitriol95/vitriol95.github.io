@@ -772,3 +772,105 @@ Hibernate:
 ```
 
 # DB를 MySQL로 교체하기
+
+가장 먼저, build.gradle을 다음처럼 수정하였다.
+
+```groovy
+plugins {
+    id 'org.springframework.boot' version '2.4.7'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'vitriol'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.4.0'
+    implementation 'org.modelmapper:modelmapper:2.3.7'
+    compileOnly 'org.projectlombok:lombok'
+
+    // Lombok for Test
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // MySQL
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    /** query DSL*/
+    compile "com.querydsl:querydsl-jpa"
+    compile "com.querydsl:querydsl-core"
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api:2.2.3"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api:1.3.5"
+}
+
+def generated='src/main/generated'
+sourceSets {
+    main.java.srcDirs += [ generated ]
+}
+
+tasks.withType(JavaCompile) {
+    options.annotationProcessorGeneratedSourcesDirectory = file(generated)
+}
+
+clean.doLast {
+    file(generated).deleteDir()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+```
+기존의 runtimeOnly였던 h2설정을 지우고, mysql을 넣어주었다.
+
+<br>
+이후 application.yml을 다음과 같이 수정해 주었다.
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mvcservice?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPubilcKeyRetrieval=true
+    username: 계정 이름
+    password: 비밀번호
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 1000
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+server:
+  tomcat:
+    max-http-form-post-size: 5MB
+```
+
+이제 모든 로컬환경에서의 준비를 끝냈다. 다음시간 부터는 직접 AWS에 빌드해보자!
