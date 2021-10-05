@@ -8,8 +8,8 @@ tags: [git,branch,merge]
 ## Git Branch + Merge
 
 #### 브랜치이름
-- 평소에 브랜치 이름을 이슈이름을 따서 feature/{issue-name} 지었었는데, 이 방식 보다는 feature/{issue-number}로 가는 것이 좋다. 깃허브와 자동 연결된다.!
-- 커밋 메시지를 달 때도, [#{issue-number}]를 맨 앞에 붙혀주는 것이 좋다. 이 역시 자동 연결을 지원한다.
+- 평소에 브랜치 이름을 이슈이름을 따서 feature/issue-name 지었었는데, 이 방식 보다는 feature/issue-number로 가는 것이 좋다. 깃허브와 자동 연결된다.!
+- 커밋 메시지를 달 때도, issue-number를 맨 앞에 붙혀주는 것이 좋다. 이 역시 자동 연결을 지원한다.
 
 #### PR 종료시 제공하는 3가지 merge 방식
 1. Create a merge Commit
@@ -30,10 +30,10 @@ tags: [git,branch,merge]
 
 - 가장 먼저, 헤더에는 커밋의 성격을 나타내면 된다. ()안에 대상을 명시해 주는 것도 좋다.
   - feat: 새기능 / fix: 버그 수정 / build: 빌드 관련 / chore: 자잘한 것
-  - ci: ci관련 / docs: 문서 수정 / style: 코드 스타일및 포맷 / refactor: 코드 리팩토링 / test: 테스트 수정
+  - ci: ci관련 / docs: 문서 수정 / style: 코드 스타일및 포맷 / refactor: 코드 리팩토링 / test: 테스트 수정
   - 이후, 간단한 설명글을 쓴다
 - 마찬가지로 참조하는 이슈를 넣어주면 좋다.
-> 이들로 부터 예를 들어보면, [#issue-number]feat(admin-service): Add search function 처럼 헤더를 작성하는 것이 좋을 것 같다.
+> 이들로 부터 예를 들어보면, \[issue-number\]feat(admin-service): Add search function 처럼 헤더를 작성하는 것이 좋을 것 같다.
 
 - 제목은 최대한 50글자 안으로 짓고, 마침표를 사용하지 말며 명령문으로 작성해야한다. 또한 '무엇'과 '왜'가 들어가야 좋다.
 - 본문의 경우에는 앞서 제목에 설명한 내용의 세부 설명을 넣어준다.
