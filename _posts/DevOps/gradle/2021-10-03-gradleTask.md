@@ -2,7 +2,7 @@
 title: 그래들 태스크 정리
 date: 2021-10-03 12:00:00 +0900
 categories: [DevOps,gradle]
-tags: [kotlin,jvm,gradle,kotlinDsl]
+tags: [kotlin,jvm,gradle,kotlindsl]
 ---
 
 ## Gradle Task정리
