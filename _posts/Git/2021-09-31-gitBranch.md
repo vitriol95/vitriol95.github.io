@@ -1,5 +1,5 @@
 ---
-title: Git 브랜치 + merge 전략
+title: git 브랜치, merge 전략
 date: 2021-09-31 11:00:00 +0900
 categories: [Git]
 tags: [git,branch,merge]
