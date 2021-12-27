@@ -8,3 +8,4 @@ order: 4
 <hr/>
 💌 vitriol95@snu.ac.kr / vitriol951@gmail.com<br>
 👨‍🎓 Seoul National Univ. Bachelor of Civil Environmnet Engineering.
+🏢 NaverCorp BackEnd Developer
