@@ -1,0 +1,213 @@
+<!DOCTYPE html><html lang="ko" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="generator" content="Jekyll v4.2.1" /><meta property="og:title" content="코틀린의 extension, inline 함수" /><meta property="og:locale" content="ko" /><meta name="description" content="Extension Function" /><meta property="og:description" content="Extension Function" /><link rel="canonical" href="https://vitriol95.github.io/posts/extensionFunc/" /><meta property="og:url" content="https://vitriol95.github.io/posts/extensionFunc/" /><meta property="og:site_name" content="Vitriol" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2021-10-04T14:00:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="코틀린의 extension, inline 함수" /><meta name="twitter:site" content="@" /><meta name="google-site-verification" content="QsbP4NOwVkaE8CnHpYOl-qNGhxB9m1RbsrBEefA92ao" /> <script type="application/ld+json"> {"headline":"코틀린의 extension, inline 함수","dateModified":"2021-10-04T14:00:00+09:00","datePublished":"2021-10-04T14:00:00+09:00","description":"Extension Function","url":"https://vitriol95.github.io/posts/extensionFunc/","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://vitriol95.github.io/posts/extensionFunc/"},"@context":"https://schema.org"}</script><title>코틀린의 extension, inline 함수 | Vitriol</title><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/site.webmanifest"><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico"><meta name="apple-mobile-web-app-title" content="Vitriol"><meta name="application-name" content="Vitriol"><meta name="msapplication-TileColor" content="#da532c"><meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css"><link rel="stylesheet" href="/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/magnific-popup@1.1.0/dist/magnific-popup.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script async src="https://cdn.jsdelivr.net/combine/npm/lozad/dist/lozad.min.js,npm/magnific-popup@1/dist/jquery.magnific-popup.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script defer src="/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id=G-WSY4XYN711"></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-WSY4XYN711'); }); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/" alt="avatar" class="mx-auto"> <img src="/assets/img/profile.png" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/">Vitriol</a></div><div class="site-subtitle font-italic">기억을 적는 시간</div></div><ul class="w-100"><li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/vitriol95" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/" aria-label="twitter" class="order-4" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['vitriol951','gmail.com'].join('@')" aria-label="email" class="order-5" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" class="order-6" > <i class="fas fa-rss"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Posts </a> </span> <span>코틀린의 extension, inline 함수</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" autocomplete="off" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>코틀린의 extension, inline 함수</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="semi-bold"> vitriol </span> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Mon, Oct 4, 2021, 2:00 PM +0900" prep="on" > Oct 4, 2021 <i class="unloaded">2021-10-04T14:00:00+09:00</i> </span></div><div> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="2145 words">11 min</span></div></div><div class="post-content"><h2 id="extension-function">Extension Function</h2><p>코틀린 내에 어떤 클래스의 메서드를 정의하는 데에는 두가지 방법이 있다. 하나는 확장함수, 다른 하나는 멤버 변수로써의 함수에 해당한다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">Foo</span> <span class="p">{</span> <span class="o">..</span><span class="p">.</span> <span class="p">}</span>
+
+<span class="k">fun</span> <span class="nc">Foo</span><span class="p">.</span><span class="nf">bar</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Some stuff</span>
+<span class="p">}</span>
+</pre></table></code></div></div><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+
+    <span class="o">..</span><span class="p">.</span>
+
+    <span class="k">fun</span> <span class="nf">bar</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// Some stuff</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>그렇다면 이러한 extension function은 어떨때 쓰이는건지 궁금했다.</p><p><br /></p><h4 id="존재하는-api의-확장이나-추가를-하고싶을-때-사용하면-좋다">존재하는 API의 확장이나, 추가를 하고싶을 때 사용하면 좋다.</h4><p>이는 클래스에 새로운 기능을 부여하는 idiomatic한 방법에 해당한다. 예를 들 수 있는 것은 Jackson-Kotlin 모듈에해당한다. <a href="https://github.com/FasterXML/jackson-module-kotlin/blob/master/src/main/kotlin/com/fasterxml/jackson/module/kotlin/Extensions.kt#L15-L32">출처</a> 이 모듈을 살펴보면 기존 자바에서 사용하던 ObjectMapper라는 클래스에 기능을 확장하여 사용하고 있는데, 코드를 살펴보면 <code class="language-plaintext highlighter-rouge">TypeReference</code> 와 generic을 이용해 확장하고 있었다.</p><blockquote><p>즉, 코드가 original하게 자바로 쓰여있고 이 클래스에 새로운 메서드나 프로퍼티를 제공하고자 할 때 사용한다. 당연히 기존의 코드는 변경할 수 없고 special한 function의 추가만 가능하다.</p></blockquote><p><br /> 그럼 자바에서는 이 extension Function을 어떻게 불러올까? 다음과 같은 extension Function이 있다고 해보자.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="nc">Strings</span><span class="p">.</span><span class="n">kt</span>
+<span class="k">fun</span> <span class="nc">String</span><span class="p">.</span><span class="nf">isEmail</span><span class="p">()</span> <span class="p">:</span> <span class="nc">Boolean</span> <span class="p">{</span>
+   <span class="c1">// ~~</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>이는 자바로 다음과 같이 선언이 된다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">StringUtils</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="n">static</span> <span class="n">boolean</span> <span class="nf">isEmail</span><span class="p">(</span><span class="nc">String</span> <span class="n">email</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// ~~</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>당연히 사용하는 부분에서도 차이가 존재한다. 기존 코틀린에서는 <code class="language-plaintext highlighter-rouge">somethingString.isEmail()</code>과 같이 인스턴스 메서드로 사용할 수 있지만 자바에서는 <code class="language-plaintext highlighter-rouge">StringsKt.isEmail("example@example.com")</code> 과 같이 caller를 첫번째 argument로 넘겨주어야 한다. 코틀린 공식 docu에 따르면 다음과 같이 정의 되어있다.</p><blockquote><p>Extensions do not actually modify classes they extend. By defining an extension, you do not insert new members into a class, but merely make new functions callable with the dot-notation on variables of this type.</p></blockquote><h4 id="null-safety를-추가하고-싶을때">Null Safety를 추가하고 싶을때.</h4><p>예를 들어, String의 extension function으로 보면 다음과 같다. <code class="language-plaintext highlighter-rouge">String?.isNullOrBlank()</code> 라고 정의한 확장함수는 null이라고 하더라도 메서드를 실행시킬 수 있게 해준다. (널 체크를 하지 않더라도) 이러한 유연함을 제공한다는 측면에서 굉장히 좋은 것 같다. 이외에 의무적으로 써야하는 상황도 존재한다.</p><h4 id="mandatory한-상황---inline-default-func-in-interface">mandatory한 상황 - inline default func in interface</h4><p>만약, interface에서 inline default function을 제공하고 싶을 때는 무조건 extension function을 사용해야한다. 이를 좀 더 명확하게 이해하기 위해서는 inline function에 대해서 이해가 필요하다.</p><hr /><ul><li>inline function이 왜 도입되었는가?</ul><p>공식 문서내용을 직역해 보자면, 코틀린에서 고차함수를 사용하면 추가적인 메모리 할당 및 함수호출로 인한 runtime시 overhead가 발생한다. Inline functions는 내부적으로 함수 내용을 호출되는 위치에 복사하여, Runtime시의 overhead를 줄여준다.</p><p><br /> 실제로 고차함수를 사용했을 때 어떠한 페널티가 존재하는지 확인해 보자.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="k">fun</span> <span class="nf">someMethod</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">):</span><span class="nc">Int</span> <span class="p">{</span>
+    <span class="nf">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="p">*</span><span class="n">a</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="py">result</span> <span class="p">=</span> <span class="nf">someMethod</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">{</span><span class="nf">println</span><span class="p">(</span><span class="s">"Just some dummy function"</span><span class="p">)})</span>
+    <span class="nf">println</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>someMethod안에는 유닛값을 반환하는 func가 arg로 자리하게 되는데, 이를 자바로 변환해보면 다음과 같아진다.</p><div class="language-java highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">InlineFunctions</span> <span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">InlineFunctions</span> <span class="no">INSTANCE</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">someMethod</span><span class="o">(</span><span class="kt">int</span> <span class="n">a</span><span class="o">,</span> <span class="nd">@NotNull</span> <span class="nc">Function0</span> <span class="n">func</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">func</span><span class="o">.</span><span class="na">invoke</span><span class="o">();</span>
+      <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a</span><span class="o">;</span>
+   <span class="o">}</span>
+
+   <span class="nd">@JvmStatic</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+      <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="no">INSTANCE</span><span class="o">.</span><span class="na">someMethod</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="o">(</span><span class="nc">Function0</span><span class="o">)</span><span class="kc">null</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">);</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+   <span class="o">}</span>
+
+   <span class="kd">static</span> <span class="o">{</span>
+      <span class="nc">InlineFunctions</span> <span class="n">var0</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">InlineFunctions</span><span class="o">();</span>
+      <span class="no">INSTANCE</span> <span class="o">=</span> <span class="n">var0</span><span class="o">;</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</pre></table></code></div></div><p>차이가 보인다..! 자바로 변환했을 때는 someMethod를 호출하기 위해 싱글턴 객체를 생성하고 있음을 알 수 있었다.</p><blockquote><p>즉, 내부적으로 객체 생성과 함수 호출을 하도록 구현이 되어있으며, 이런 부분이 성능을 떨어 뜨릴 수 있는 것이다.</p></blockquote><p>그렇다면 inlinefunction으로 구성해보자.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="k">inline</span> <span class="k">fun</span> <span class="nf">someMethod</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">):</span><span class="nc">Int</span> <span class="p">{</span>
+    <span class="nf">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="p">*</span><span class="n">a</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>실제로 이 코드가 컴파일될 때, 컴파일러는 함수 내부의 코드를 호출하는 위치에 복사하게 된다. 물론 컴파일되는 바이트 코드의 양은 많아지겠지만, 함수 호출을 하거나 추가적인 객체를 생성하는 부분이 사라진다고 한다. 그럼 이를 자바로 컴파일 해보자.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="k">public</span> <span class="k">final</span> <span class="kd">class</span> <span class="nc">InlineFunctions</span> <span class="p">{</span>
+
+   <span class="nd">@JvmStatic</span>
+   <span class="k">public</span> <span class="n">static</span> <span class="k">final</span> <span class="n">void</span> <span class="nf">main</span><span class="p">(</span><span class="nd">@NotNull</span> <span class="nc">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">int</span> <span class="n">a</span> <span class="p">=</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="n">int</span> <span class="n">var5</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+      <span class="nc">String</span> <span class="n">var6</span> <span class="p">=</span> <span class="s">"Just some dummy function"</span><span class="p">;</span>
+      <span class="nc">System</span><span class="p">.</span><span class="k">out</span><span class="p">.</span><span class="nf">println</span><span class="p">(</span><span class="n">var6</span><span class="p">);</span>
+      <span class="n">int</span> <span class="n">result</span> <span class="p">=</span> <span class="mi">2</span> <span class="p">*</span> <span class="n">a</span><span class="p">;</span>
+      <span class="nc">System</span><span class="p">.</span><span class="k">out</span><span class="p">.</span><span class="nf">println</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+   <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></table></code></div></div><p>정말 호출된 부분에서만 다시 컴파일되고 있었다. 하지만 이렇게 사용할 경우 단점또한 존재한다. 내부적으로 코드를 복사하기 때문에 인자로 전달받은 함수는 다른 함수로 전달되거나 참조될 수 없다는 것이다. 따라서 다음과 같은 코드는 컴파일 오류가 발생한다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="k">inline</span> <span class="k">fun</span> <span class="nf">newMethod</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">,</span> <span class="n">func2</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">func</span><span class="p">()</span>
+    <span class="nf">someMethod</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">func2</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">someMethod</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">):</span><span class="nc">Int</span> <span class="p">{</span>
+    <span class="nf">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="p">*</span><span class="n">a</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="nf">newMethod</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">{</span><span class="nf">println</span><span class="p">(</span><span class="s">"Just some dummy function"</span><span class="p">)},</span>
+            <span class="p">{</span><span class="nf">println</span><span class="p">(</span><span class="s">"can't pass function in inline functions"</span><span class="p">)})</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>이유는 <code class="language-plaintext highlighter-rouge">someMethod(10,func2)</code> 부분이다. inline 함수에서 인자로 전달받은 함수는 참조할 수 없기 때문에 func2를 전달하는것 또한 불가능하다.</p><blockquote><p>물론 이 방법을 우회하는 방법도 존재한다. func2앞에 noinline키워드를 붙혀주면 된다.</p></blockquote><p>noinline을 붙혔다고 할때, 자바로 컴파일 해보면 확인할 수 있다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="k">public</span> <span class="k">final</span> <span class="n">void</span> <span class="nf">newMethod</span><span class="p">(</span><span class="n">int</span> <span class="n">a</span><span class="p">,</span> <span class="nd">@NotNull</span> <span class="nc">Function0</span> <span class="n">func</span><span class="p">,</span> <span class="nd">@NotNull</span> <span class="nc">Function0</span> <span class="n">func2</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">func</span><span class="p">.</span><span class="nf">invoke</span><span class="p">();</span>
+   <span class="k">this</span><span class="p">.</span><span class="nf">someMethod</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">func2</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">final</span> <span class="n">int</span> <span class="nf">someMethod</span><span class="p">(</span><span class="n">int</span> <span class="n">a</span><span class="p">,</span> <span class="nd">@NotNull</span> <span class="nc">Function0</span> <span class="n">func</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">func</span><span class="p">.</span><span class="nf">invoke</span><span class="p">();</span>
+   <span class="k">return</span> <span class="mi">2</span> <span class="p">*</span> <span class="n">a</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nd">@JvmStatic</span>
+<span class="k">public</span> <span class="n">static</span> <span class="k">final</span> <span class="n">void</span> <span class="nf">main</span><span class="p">(</span><span class="nd">@NotNull</span> <span class="nc">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+   <span class="nc">String</span> <span class="n">var6</span> <span class="p">=</span> <span class="s">"Just some dummy function"</span><span class="p">;</span>
+   <span class="nc">System</span><span class="p">.</span><span class="k">out</span><span class="p">.</span><span class="nf">println</span><span class="p">(</span><span class="n">var6</span><span class="p">);</span>
+   <span class="n">this_</span><span class="err">$</span><span class="n">iv</span><span class="p">.</span><span class="nf">someMethod</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">func2</span><span class="err">$</span><span class="n">iv</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>실제로 func2()를 제외한 나머지 코드들은 inline처리되어 복사되었다.</p><blockquote><p>정리해보자. inline키워드를 사용하여 함수를 정의하면 런타임 오버헤드를 줄일 수 있다. 하지만 반대로 코드 양이 많은 함수를 인라인 처리하면 바이트코드 양이 많아질 수 있고 이는 최적화를 방해할 수 있다. 따라서 짧은 길이의 함수일때 사용하는 것이 유리하다.</p></blockquote><hr /><p>다시 본론으로 돌아와보자. 위의 인라인함수 특징을 이해했다면 이는 반드시 final이라는 속성을 갖는다. 하지만 interface에서 final이란 있을 수 없는 것이다. 하지만 확장함수로 이러한 인라인 함수를 정의한다면 사용할 수 있다.</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/assets/img/kotlin_study/2.png" /></p><blockquote><p>사실 이부분은 직접 프로젝트하며 써본적은 없어서 크게 와닿지 않는다.. 여러번 확인해가며 보아야겠다.</p></blockquote><h4 id="mandatory한-상황---iteration을-주고-싶을때">mandatory한 상황 - Iteration을 주고 싶을때</h4><p>만약 내가 정의한 클래스에 <code class="language-plaintext highlighter-rouge">for (item in collection) { ... }</code>와 같은 기능을 주고 싶을때 사용할 수 있다. 바로 해당 클래스이름뒤에 <code class="language-plaintext highlighter-rouge">iterator()</code> 익스텐션을 주어 Iterator&lt;&gt;를 정의하는 방법이다. 당연히 iteration을 실행하기 위해서는 next()와 hasnext()에 대한 구현부를 필요로 한다.</p><h4 id="mandatory한-상황---operator-정의">mandatory한 상황 - operator 정의</h4><p>operator에 대한 새로운 정의란 다음과 같은 상황이 있다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">data class</span> <span class="nc">Point</span><span class="p">(</span><span class="kd">val</span> <span class="py">x</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span> <span class="kd">val</span> <span class="py">y</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span>
+
+<span class="k">operator</span> <span class="k">fun</span> <span class="nc">Point</span><span class="p">.</span><span class="nf">unaryMinus</span><span class="p">()</span> <span class="p">=</span> <span class="nc">Point</span><span class="p">(-</span><span class="n">x</span><span class="p">,</span> <span class="p">-</span><span class="n">y</span><span class="p">)</span>
+
+<span class="kd">val</span> <span class="py">point</span> <span class="p">=</span> <span class="nc">Point</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+   <span class="nf">println</span><span class="p">(-</span><span class="n">point</span><span class="p">)</span>  <span class="c1">// prints "Point(x=-10, y=-20)"</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>인스턴스.unaryPlus(), unaryMinus(), not()을 새롭게 정의하여 +,-,!가 붙었을 때의 새로운 정의를 해줄 수 있다.</p><blockquote><p>++, –의 경우는 inc(), dec() / +,-,* … 의 경우는 plus(),minus(),times()등이 존재한다. <a href="https://kotlinlang.org/docs/operator-overloading.html#binary-operations">공식 문서</a>를 참조하면 더 많은 정보를 확인할 수 있다.</p></blockquote></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/kotlin/'>Kotlin</a>, <a href='/categories/kotlin-study/'>kotlin_study</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/kotlin/" class="post-tag no-text-decoration" >kotlin</a> <a href="/tags/jvm/" class="post-tag no-text-decoration" >jvm</a> <a href="/tags/java/" class="post-tag no-text-decoration" >java</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=코틀린의 extension, inline 함수 - Vitriol&url=https://vitriol95.github.io/posts/extensionFunc/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=코틀린의 extension, inline 함수 - Vitriol&u=https://vitriol95.github.io/posts/extensionFunc/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=코틀린의 extension, inline 함수 - Vitriol&url=https://vitriol95.github.io/posts/extensionFunc/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/posts/batchbase1/">스프링 배치 - 1 스프링 배치란?</a><li><a href="/posts/batchbase2/">스프링 배치 - 2 DB 스키마에 대한 이해</a><li><a href="/posts/batchbase3/">스프링 배치 - 3 도메인 뜯어보기(JOB)</a><li><a href="/posts/batchbase4/">스프링 배치 - 4 도메인 뜯어보기(STEP)</a><li><a href="/posts/batchbase5/">스프링 배치 - 5 청크 지향 처리</a></ul></div><div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/algorithm/">algorithm</a> <a class="post-tag" href="/tags/python3/">python3</a> <a class="post-tag" href="/tags/boj/">boj</a> <a class="post-tag" href="/tags/problem/">problem</a> <a class="post-tag" href="/tags/%EB%B0%B1%EC%A4%80/">백준</a> <a class="post-tag" href="/tags/spring/">spring</a> <a class="post-tag" href="/tags/springboot/">springboot</a> <a class="post-tag" href="/tags/java/">java</a> <a class="post-tag" href="/tags/spring-mvc/">spring mvc</a> <a class="post-tag" href="/tags/springframework/">springframework</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/posts/kotlinCompanionObject/"><div class="card-body"> <span class="timeago small" > Oct 4, 2021 <i class="unloaded">2021-10-04T13:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>코틀린의 CompanionObject vs 자바 Static</h3><div class="text-muted small"><p> Kotlin + Companion Object 출처 출처2 코틀린에서의 Companion Object는 자바의 Static과 엄연히 다르다. 그렇다면 왜 기존의 Static을 쓰지 않고 코틀린에와서 이렇게 넘어오게 됬는지, 그 연유를 찾아 올라가면 알 수 있지 않을까? 자바의 Static &amp; 코틀린의 Object 자바에서의 static...</p></div></div></a></div><div class="card"> <a href="/posts/reified/"><div class="card-body"> <span class="timeago small" > Oct 5, 2021 <i class="unloaded">2021-10-05T14:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>코틀린의 reified 키워드</h3><div class="text-muted small"><p> reified키워드는 왜쓸까? 출처 fun &lt;T&gt; genericFunc(c: Class&lt;T&gt;) 와 같이 일반적인 제네릭 함수 body에서 타입 T는 컴파일 타임에는 존재하지만, 런타임 시에는 Type erasure때문에 접근할 수 없게된다. 따라서 일반적인 클래스에 작성된 함수 body에서 제네릭 타입에 접근하고 싶다면 ge...</p></div></div></a></div><div class="card"> <a href="/posts/kotlinStudy1/"><div class="card-body"> <span class="timeago small" > Oct 2, 2021 <i class="unloaded">2021-10-02T11:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>코틀린 var, val 그리고 inline</h3><div class="text-muted small"><p> 인터페이스 상에서의 var과 val의 차이 코틀린에서 ‘var속성과 val속성을 사용한다.’ 라는 것은 결국 ‘속성 처럼’ 보이는 문법을 쓰게 해주는 getter나 setter를 만들어주는 것이다. 또한 이러한 특징은 추상 클래스나 인터페이스에서 추상 수준의 var이나 val을 사용할 수 있게 해준다. 그렇다면 다음과 같은 선언을 보자. 이번 프...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/posts/mysql4/" class="btn btn-outline-primary" prompt="Older"><p>DB의 트랜잭션 (4) 트랜잭션의 격리성, LOCK 세번째</p></a> <a href="/posts/reified/" class="btn btn-outline-primary" prompt="Newer"><p>코틀린의 reified 키워드</p></a></div></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2022 <a href="https://twitter.com/username">vitriol</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/tags/algorithm/">algorithm</a> <a class="post-tag" href="/tags/python3/">python3</a> <a class="post-tag" href="/tags/boj/">boj</a> <a class="post-tag" href="/tags/problem/">problem</a> <a class="post-tag" href="/tags/%EB%B0%B1%EC%A4%80/">백준</a> <a class="post-tag" href="/tags/spring/">spring</a> <a class="post-tag" href="/tags/springboot/">springboot</a> <a class="post-tag" href="/tags/java/">java</a> <a class="post-tag" href="/tags/spring-mvc/">spring mvc</a> <a class="post-tag" href="/tags/springframework/">springframework</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://vitriol95.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>

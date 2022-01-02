@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="ko" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="generator" content="Jekyll v4.2.1" /><meta property="og:title" content="코틀린 var, val 그리고 inline" /><meta property="og:locale" content="ko" /><meta name="description" content="인터페이스 상에서의 var과 val의 차이" /><meta property="og:description" content="인터페이스 상에서의 var과 val의 차이" /><link rel="canonical" href="https://vitriol95.github.io/posts/kotlinStudy1/" /><meta property="og:url" content="https://vitriol95.github.io/posts/kotlinStudy1/" /><meta property="og:site_name" content="Vitriol" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2021-10-02T11:00:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="코틀린 var, val 그리고 inline" /><meta name="twitter:site" content="@" /><meta name="google-site-verification" content="QsbP4NOwVkaE8CnHpYOl-qNGhxB9m1RbsrBEefA92ao" /> <script type="application/ld+json"> {"headline":"코틀린 var, val 그리고 inline","dateModified":"2021-10-02T11:00:00+09:00","datePublished":"2021-10-02T11:00:00+09:00","description":"인터페이스 상에서의 var과 val의 차이","url":"https://vitriol95.github.io/posts/kotlinStudy1/","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://vitriol95.github.io/posts/kotlinStudy1/"},"@context":"https://schema.org"}</script><title>코틀린 var, val 그리고 inline | Vitriol</title><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/site.webmanifest"><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico"><meta name="apple-mobile-web-app-title" content="Vitriol"><meta name="application-name" content="Vitriol"><meta name="msapplication-TileColor" content="#da532c"><meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css"><link rel="stylesheet" href="/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/magnific-popup@1.1.0/dist/magnific-popup.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script async src="https://cdn.jsdelivr.net/combine/npm/lozad/dist/lozad.min.js,npm/magnific-popup@1/dist/jquery.magnific-popup.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script defer src="/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id=G-WSY4XYN711"></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-WSY4XYN711'); }); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/" alt="avatar" class="mx-auto"> <img src="/assets/img/profile.png" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/">Vitriol</a></div><div class="site-subtitle font-italic">기억을 적는 시간</div></div><ul class="w-100"><li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/vitriol95" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/" aria-label="twitter" class="order-4" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['vitriol951','gmail.com'].join('@')" aria-label="email" class="order-5" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" class="order-6" > <i class="fas fa-rss"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Posts </a> </span> <span>코틀린 var, val 그리고 inline</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" autocomplete="off" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>코틀린 var, val 그리고 inline</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="semi-bold"> vitriol </span> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Sat, Oct 2, 2021, 11:00 AM +0900" prep="on" > Oct 2, 2021 <i class="unloaded">2021-10-02T11:00:00+09:00</i> </span></div><div> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="2814 words">15 min</span></div></div><div class="post-content"><h2 id="인터페이스-상에서의-var과-val의-차이">인터페이스 상에서의 var과 val의 차이</h2><p>코틀린에서 ‘var속성과 val속성을 사용한다.’ 라는 것은 결국 ‘속성 처럼’ 보이는 문법을 쓰게 해주는 getter나 setter를 만들어주는 것이다. 또한 이러한 특징은 추상 클래스나 인터페이스에서 추상 수준의 var이나 val을 사용할 수 있게 해준다.</p><p><br /> 그렇다면 다음과 같은 선언을 보자. 이번 프로젝트에서 프로젝션을 사용할 때 자주 썼던 선언방식에 해당한다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Test</span><span class="p">{</span>
+  <span class="kd">val</span> <span class="py">a</span><span class="p">:</span><span class="nc">Int</span>
+  <span class="kd">var</span> <span class="py">b</span><span class="p">:</span><span class="nc">String</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>이는 자바로 compile해보면 다음과 같다. val은 getter를 만들어내는 것이고, var의 경우는 setter까지 만들어 준다.</p><div class="language-java highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Test</span><span class="o">{</span>
+  <span class="kt">int</span> <span class="nf">getA</span><span class="o">();</span>
+  <span class="nc">String</span> <span class="nf">getB</span><span class="o">();</span>
+  <span class="kt">void</span> <span class="nf">setB</span><span class="o">(</span><span class="nl">v:</span><span class="nc">String</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h3 id="그렇다면-상속에서는">그렇다면 상속에서는</h3><p>자바에서는 <code class="language-plaintext highlighter-rouge">1. 메서드 명이 일치해야 하고</code>, <code class="language-plaintext highlighter-rouge">2. 각 인자는 완전히 동일한 형을 가지고 있어야한다.</code> 조건들을 만족해야 overriding을 진행할 수 있다. 하지만, jdk1.5 버전 이후 override한 메소드의 반환형이 원래 메서드 반환형의 자식 계열이면 허용하게 된다. 아래와 같은 코드를 성립하게 해주는 것이다.</p><div class="language-java highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Test</span><span class="o">{</span>
+  <span class="nc">Object</span> <span class="nf">getB</span><span class="o">()</span>
+<span class="o">}</span>
+ 
+<span class="kd">class</span> <span class="nc">Concreate</span> <span class="kd">implements</span> <span class="nc">Test</span><span class="o">{</span>
+  <span class="nd">@override</span>
+  <span class="nc">String</span> <span class="nf">getB</span><span class="o">(){</span><span class="k">return</span> <span class="s">"abc"</span><span class="o">;}</span>
+<span class="o">}</span>
+</pre></table></code></div></div><p>이는 어찌보면 당연한 객체지향의 원리에 해당한다. 외부에서는 Concrete의 get메서드에 접근할 때, Test의 메서드로 접근하게 되는데, 결국 String을 반환해도 공변(covariance)에 의해 Object형을 반환했다는 점은 문제가 없다.</p><blockquote><p>이 내용은 마찬가지로 코틀린에서도 해당한다.</p></blockquote><p>그렇다면 val, var을 변성 관점에서 한번 따져보자.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Num</span><span class="p">{</span>
+  <span class="kd">val</span> <span class="py">num</span><span class="p">:</span><span class="nc">Number</span>
+<span class="p">}</span>
+
+<span class="k">inline</span> <span class="kd">class</span> <span class="nc">NumInt</span><span class="p">(</span><span class="k">override</span> <span class="kd">val</span> <span class="py">num</span><span class="p">:</span><span class="nc">Int</span><span class="p">):</span><span class="nc">Num</span>
+<span class="k">inline</span> <span class="kd">class</span> <span class="nc">NumFloat</span><span class="p">(</span><span class="k">override</span> <span class="kd">val</span> <span class="py">num</span><span class="p">:</span><span class="nc">Float</span><span class="p">):</span><span class="nc">Num</span>
+<span class="k">inline</span> <span class="kd">class</span> <span class="nc">NumDouble</span><span class="p">(</span><span class="k">override</span> <span class="kd">val</span> <span class="py">num</span><span class="p">:</span><span class="nc">Double</span><span class="p">):</span><span class="nc">Num</span>
+</pre></table></code></div></div><p>이렇게 구상형을 전개할 수 있고, 이 값은 문제가 되지 않는다. 만약 NumInt를 자바코드로 본다면 다음과 같다.</p><div class="language-java highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">NumInt</span> <span class="kd">implements</span> <span class="nc">Num</span><span class="o">{</span>
+  <span class="kd">private</span> <span class="kt">int</span> <span class="n">num</span><span class="o">;</span>
+  <span class="nc">NumInt</span><span class="o">(</span><span class="nl">v:</span><span class="kt">int</span><span class="o">){</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">v</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="nd">@override</span>
+  <span class="kt">int</span> <span class="nf">num</span><span class="o">(){</span><span class="k">return</span> <span class="n">num</span><span class="o">;}</span>
+<span class="o">}</span>
+</pre></table></code></div></div><p>결국 val 타입을 사용하게 되면 손쉽게 구현 클래스에서 상속관계에 있는 하위형으로 바꾸어 쓸 수 있다는 것이다. 또한 이 값은 노출할 때 가리키는 형에 따라 다른 형으로 인식이 된다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">val</span> <span class="py">numInt</span> <span class="p">=</span> <span class="nc">NumInt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">numInt</span><span class="p">.</span><span class="n">num</span> <span class="c1">// Int</span>
+ 
+<span class="kd">val</span> <span class="py">num</span><span class="p">:</span><span class="nc">Num</span> <span class="p">=</span> <span class="n">numInt</span>
+<span class="n">num</span><span class="p">.</span><span class="n">num</span> <span class="c1">// Number</span>
+</pre></table></code></div></div><blockquote><p>추상형으로 인식하면 Num수준에서 바라보기 때문에 Number형이 된다. 따라서 추상 클래스에서 이 속성을 사용하려 할 때, 구현형이 지정한 num의 형식을 인식하는 것은 불가능하다.</p></blockquote><p>이렇게 자유롭게 변경될 수 있는 이유로는 getter메소드라서 반환형에 대한 공변지원 때문에 가능하다. <strong><em>하지만 var는 다르다</em></strong> var는 setter에서 인자로 해당 형을 받기 때문에 구현형에서 무공변때문에 그대로 추상형을 사용해야 한다. 즉 다음과 같은 코드는 컴파일 에러를 뱉는다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Num</span><span class="p">{</span>
+  <span class="kd">var</span> <span class="py">num</span><span class="p">:</span><span class="nc">Number</span>
+<span class="p">}</span>
+ 
+<span class="kd">class</span> <span class="nc">NumInt</span><span class="p">(</span><span class="k">override</span> <span class="kd">var</span> <span class="py">num</span><span class="p">:</span><span class="nc">Int</span><span class="p">):</span><span class="nc">Num</span> <span class="c1">//error</span>
+</pre></table></code></div></div><p>이전에 배웠었던 변성의 개념으로 들어가서 보자면 훨씬 명확하다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Num</span><span class="p">{</span>
+  <span class="k">fun</span> <span class="nf">getNum</span><span class="p">():</span><span class="nc">Number</span>
+  <span class="k">fun</span> <span class="nf">setNum</span><span class="p">(</span><span class="n">v</span><span class="p">:</span><span class="nc">Number</span><span class="p">)</span>
+<span class="p">}</span>
+ 
+<span class="kd">class</span> <span class="nc">NumInt</span><span class="p">:</span><span class="nc">Num</span><span class="p">{</span>
+  <span class="k">override</span> <span class="k">fun</span> <span class="nf">getNum</span><span class="p">():</span><span class="nc">Int</span><span class="p">{}</span>
+  <span class="k">override</span> <span class="k">fun</span> <span class="nf">setNum</span><span class="p">(</span><span class="n">v</span><span class="p">:</span><span class="nc">Int</span><span class="p">){}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>var는 setter의 인자로 Number를 확정하고 있기에, 상속한 NumInt에서 v에 int형을 지정하는 것은 overriding 조건에 위배되는 것이다.</p><p><br /> 그렇다면 이 문제에 대한 해결책은 무엇일까? 대안은, 추상형에서는 val로 지정하고 구현형은 var로 override하는 방법이다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Num</span><span class="p">{</span>
+  <span class="kd">val</span> <span class="py">num</span><span class="p">:</span><span class="nc">Number</span>
+<span class="p">}</span>
+ 
+<span class="kd">class</span> <span class="nc">NumInt</span><span class="p">(</span><span class="k">override</span> <span class="kd">var</span> <span class="py">num</span><span class="p">:</span><span class="nc">Int</span><span class="p">):</span><span class="nc">Num</span>
+</pre></table></code></div></div><blockquote><p>추상형에서는 getter만 내려주고, 구상층에서는 이를 var로 선언하여 setter도 만질 수 있게 해주는 것이다.</p></blockquote><p>즉, 아래와 같은 코드가 만들어지는 것이다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Num</span><span class="p">{</span>
+  <span class="k">fun</span> <span class="nf">getNum</span><span class="p">():</span><span class="nc">Number</span>
+<span class="p">}</span>
+ 
+<span class="kd">class</span> <span class="nc">NumInt</span><span class="p">:</span><span class="nc">Num</span><span class="p">{</span>
+  <span class="k">override</span> <span class="k">fun</span> <span class="nf">getNum</span><span class="p">():</span><span class="nc">Int</span><span class="p">{}</span>
+  <span class="k">fun</span> <span class="nf">setNum</span><span class="p">(</span><span class="n">v</span><span class="p">:</span><span class="nc">Int</span><span class="p">){}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>getter는 오버라이드 한것으로 처리를 하는 것이고, setter는 새로 생성된 함수로 사용하는 것이다.</p><h4 id="출처"><a href="https://www.bsidesoft.com/8201">출처</a></h4><h2 id="inline-class">Inline class</h2><p>이전에 inline 함수에 대한 정리는 했는데, 이번엔 inline class도 함께 정리해보려한다. inline function은 일반 함수와는 다르게 실제 사용된 위치에 호출되어 ‘inline’으로 복사되어 진행된다. 일반 함수가 객체를 생성해 진행하는 것과 비교하면 런타임시에 오버헤드가 작다고 이야기 할 수 있다.</p><blockquote><p>물론 구현부분이 길면 안되겠다.</p></blockquote><h3 id="언제-inline-class를-사용하는지">언제 inline class를 사용하는지</h3><p>만약 우리가 하나의 타입을 만들어서, 그 타입만 가질 수 있는 여러가지 동작들을 정의하고 싶을때가 있다. 예를 들어 Unix timestamp는 기본적으로 Long에 해당하지만, 이를 캘린더 타입으로 변환하는등의 작업을 해주고 싶다고 하자.</p><blockquote><p>일반 클래스로도 되지않나? 라고 생각이 들긴하다. 아래에서 여러 방법들을 살펴보자.</p></blockquote><ol><li>type alias</ol><p>typealias 키워드를 타입의 별칭으로 삼아 직관적으로 사용하는 방법이 존재한다. 예를 들어, 아래와 같은 코드로 작성해 볼 수 있다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="k">typealias</span> <span class="nc">UnixMillis</span> <span class="p">=</span> <span class="nc">Long</span>
+
+<span class="k">fun</span> <span class="nc">UnixMillis</span><span class="p">.</span><span class="nf">toCalendar</span><span class="p">():</span> <span class="nc">Calendar</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nc">Calendar</span><span class="p">.</span><span class="nf">getInstance</span><span class="p">().</span><span class="nf">also</span> <span class="p">{</span>
+        <span class="n">it</span><span class="p">.</span><span class="n">timeInMillis</span> <span class="p">=</span> <span class="k">this</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">unix</span><span class="p">:</span> <span class="nc">UnixMillis</span> <span class="p">=</span> <span class="nc">System</span><span class="p">.</span><span class="nf">currentTimeMillis</span><span class="p">()</span>
+    <span class="kd">val</span> <span class="py">calendar</span><span class="p">:</span> <span class="nc">Calendar</span> <span class="p">=</span> <span class="n">unix</span><span class="p">.</span><span class="nf">toCalendar</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>이후 확장함수로 toCalender를 정의하면 UnixMills타입이 Calendar로 변환될 수 있음을 알 수 있다. 하지만, 위 방식은 단점이 너무 많다.</p><ul><li>UnixMills의 타입은 Long에 지나지 않는다. 따라서 (1L).toCalendar()도 사용될 수 있다. 이는 자바로 치면 <code class="language-plaintext highlighter-rouge">long unix = System.currentTimeMillis();</code> 과 다름없으며, 이는 많은 버그를 불러올 수 있다.<blockquote><p>예를 들어, 화씨와 섭씨는 같은 double타입에 해당되더라도 쓸 수 있는 상황이 다르며, 하나의 핸들러로 처리된다면 큰 오류를 불러올 수 있는 것과 같다.</p></blockquote></ul><ol><li>Wrapper Class</ol><p>Wrapper 클래스를 만드는 것으로 이 문제를 피해볼 수 있다. 이 방법은 가장 흔히 생각할 수 있는 방법이며, 나 또한 이런식으로 진행한적이 있었다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="nc">UnixMillis</span><span class="p">(</span><span class="k">private</span> <span class="kd">val</span> <span class="py">millis</span><span class="p">:</span> <span class="nc">Long</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">toCalendar</span><span class="p">():</span> <span class="nc">Calendar</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">Calendar</span><span class="p">.</span><span class="nf">getInstance</span><span class="p">().</span><span class="nf">also</span> <span class="p">{</span>
+            <span class="n">it</span><span class="p">.</span><span class="n">timeInMillis</span> <span class="p">=</span> <span class="n">millis</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>이렇게 되면 더이상 Long타입에서 toCalendar를 호출하는 것은 불가능하다. 여기까지는 아주 좋다. 만약 이 코드가 자바화 되었다면 어떻게 보여질까?</p><div class="language-java highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">()</span> <span class="o">{</span>
+   <span class="nc">UnixMillis</span> <span class="n">unix</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">UnixMillis</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+   <span class="nc">Calendar</span> <span class="n">calendar</span> <span class="o">=</span> <span class="n">unix</span><span class="o">.</span><span class="na">toCalendar</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></table></code></div></div><p>어? 뭔가 예상했던 바람직한 방법과는 다르다 new UnixMills() 라는 생성자를 이용해서 계속 객체를 생성해 사용하기 때문에 이 방법마저도 완전히 최적화된 방법이라고 할 수 없다.</p><ol><li>인라인 클래스</ol><p>마지막으로 앞서 구현했던 wrapper 클래스의 value이라는 키워드를 붙혀보자.</p><blockquote><p>inline이라는 modifier는 deprecated되었으며, @JvmInline 어노테이션을 붙혀주어야 JVM이 이를 인식하게 된다.</p></blockquote><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="nd">@JvmInline</span>
+<span class="k">inline</span> <span class="kd">class</span> <span class="nc">UnixMillis</span><span class="p">(</span><span class="k">private</span> <span class="kd">val</span> <span class="py">millis</span><span class="p">:</span> <span class="nc">Long</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">toCalendar</span><span class="p">():</span> <span class="nc">Calendar</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">Calendar</span><span class="p">.</span><span class="nf">getInstance</span><span class="p">().</span><span class="nf">also</span> <span class="p">{</span>
+            <span class="n">it</span><span class="p">.</span><span class="n">timeInMillis</span> <span class="p">=</span> <span class="n">millis</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>그리고 이 코드의 디컴파일된 자바 코드를 보면?</p><div class="language-java highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">()</span> <span class="o">{</span>
+   <span class="kt">long</span> <span class="n">unix</span> <span class="o">=</span> <span class="nc">UnixMillis</span><span class="o">.</span><span class="na">constructor</span><span class="o">-</span><span class="n">impl</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+   <span class="nc">Calendar</span> <span class="n">calendar</span> <span class="o">=</span> <span class="nc">UnixMillis</span><span class="o">.</span><span class="na">toCalendar</span><span class="o">-</span><span class="n">impl</span><span class="o">(</span><span class="n">unix</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><p>실제 UnixMills라는 자료형은 쓰이지 않고, 기존 Wrapper 클래스에서 사용되던 함수들이 static 함수로 정의된 헬퍼 클래스로 변했다. 여기서는 constructor-impl, toCalender-impl이라는 유틸리티 함수가 사용되었고 long자료형이 그대로 사용되고 있었다. 이처럼 인라인클래스를 사용하면 코드를 최적화 해주고 안전한 사용법을 강제해 줄 수 있는 것이다.</p><h3 id="inline-class의-특징-1">Inline Class의 특징 1</h3><p>인라인 클래스가 감싸고 있는 값은 주 생성자로 전달할 수 있고, 이 때문에 인라인 클래스는 주 생성자로 하나의 인자만 가져야한다. 또한 var이나 val을 붙여 속성으로 만들어 주어야 한다.</p><blockquote><p>앞선 UnixMills의 경우 Long타입의 millis라는 속성만 가지고 있어야 했다.</p></blockquote><p><br /> 다음과 같은 코드를 보며 특징들 또한 확인할 수 있다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="nd">@JvmInline</span>
+<span class="n">value</span> <span class="kd">class</span> <span class="nc">Name</span><span class="p">(</span><span class="kd">val</span> <span class="py">s</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">init</span> <span class="p">{</span>
+        <span class="nf">require</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span> <span class="p">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">val</span> <span class="py">length</span><span class="p">:</span> <span class="nc">Int</span>
+        <span class="k">get</span><span class="p">()</span> <span class="p">=</span> <span class="n">s</span><span class="p">.</span><span class="n">length</span>
+
+    <span class="k">fun</span> <span class="nf">greet</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">println</span><span class="p">(</span><span class="s">"Hello, $s"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">name</span> <span class="p">=</span> <span class="nc">Name</span><span class="p">(</span><span class="s">"Kotlin"</span><span class="p">)</span>
+    <span class="n">name</span><span class="p">.</span><span class="nf">greet</span><span class="p">()</span> 
+    <span class="nf">println</span><span class="p">(</span><span class="n">name</span><span class="p">.</span><span class="n">length</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>일반적인 클래스와 마찬가지로 프로퍼티와 함수, init블록을 지정해 줄 수 있다. main에서 호출한 greet()과 length는 모두 실제로static method로 호출이 된다. 또한 inline 클래스의 프로퍼티는 backingfield를 가질 수 없다. 오직 length와 같은 simple computable properties만 가질 수 있으며 lateinit과 같은 키워드를 사용할 수 없다. (static으로 활동하게 되므로)</p><h3 id="inline-class의-특징-2">Inline Class의 특징 2</h3><p>아래와 같이 구현 클래스의 역할도 가능하다. 하지만 이렇게 구현한 inline클래스는 반드시 final이된다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="kd">interface</span> <span class="nc">Printable</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">prettyPrint</span><span class="p">():</span> <span class="nc">String</span>
+<span class="p">}</span>
+
+<span class="nd">@JvmInline</span>
+<span class="n">value</span> <span class="kd">class</span> <span class="nc">Name</span><span class="p">(</span><span class="kd">val</span> <span class="py">s</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span> <span class="p">:</span> <span class="nc">Printable</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">prettyPrint</span><span class="p">():</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">"Let's $s!"</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">name</span> <span class="p">=</span> <span class="nc">Name</span><span class="p">(</span><span class="s">"Kotlin"</span><span class="p">)</span>
+    <span class="nf">println</span><span class="p">(</span><span class="n">name</span><span class="p">.</span><span class="nf">prettyPrint</span><span class="p">())</span> <span class="c1">// 역시 static method로 호출된다.</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>Mangling이라는 특징또한 존재한다. 인라인클래스는 그들의 underlying type으로 컴파일이 되기에, 다음과 같이 이름이 겹치는 충돌 상황에서 문제가 생길 수 있다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="nd">@JvmInline</span>
+<span class="n">value</span> <span class="kd">class</span> <span class="nc">UInt</span><span class="p">(</span><span class="kd">val</span> <span class="py">x</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span>
+
+<span class="c1">// Represented as 'public final void compute(int x)' on the JVM</span>
+<span class="k">fun</span> <span class="nf">compute</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="c1">// Also represented as 'public final void compute(int x)' on the JVM!</span>
+<span class="k">fun</span> <span class="nf">compute</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nc">UInt</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div><p>이를 방지하기 위해서는 function의 이름에 stable한 hashcode를 넣어주는 방식을 채용할 수 있다. 즉, <code class="language-plaintext highlighter-rouge">fun compute(x: UInt)</code>라는 function이 <code class="language-plaintext highlighter-rouge">public final void compute-&lt;hashcode&gt;(int x)</code>처럼 컴파일링되게 해주어야 하는 것이다.</p><blockquote><p>혹은 다음과 같은 방식으로 피해갈 수도있다. 이는 자바코드에서 사용될때 유용하다.</p><div class="language-kotlin highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="nd">@JvmName</span><span class="p">(</span><span class="s">"computeUInt"</span><span class="p">)</span>
+<span class="k">fun</span> <span class="nf">compute</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nc">UInt</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div></blockquote><h4 id="출처-1"><a href="https://kotlinlang.org/docs/inline-classes.html#inheritance">출처</a></h4></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/kotlin/'>Kotlin</a>, <a href='/categories/kotlin-study/'>kotlin_study</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/kotlin/" class="post-tag no-text-decoration" >kotlin</a> <a href="/tags/jvm/" class="post-tag no-text-decoration" >jvm</a> <a href="/tags/var/" class="post-tag no-text-decoration" >var</a> <a href="/tags/val/" class="post-tag no-text-decoration" >val</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=코틀린 var, val 그리고 inline - Vitriol&url=https://vitriol95.github.io/posts/kotlinStudy1/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=코틀린 var, val 그리고 inline - Vitriol&u=https://vitriol95.github.io/posts/kotlinStudy1/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=코틀린 var, val 그리고 inline - Vitriol&url=https://vitriol95.github.io/posts/kotlinStudy1/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/posts/batchbase1/">스프링 배치 - 1 스프링 배치란?</a><li><a href="/posts/batchbase2/">스프링 배치 - 2 DB 스키마에 대한 이해</a><li><a href="/posts/batchbase3/">스프링 배치 - 3 도메인 뜯어보기(JOB)</a><li><a href="/posts/batchbase4/">스프링 배치 - 4 도메인 뜯어보기(STEP)</a><li><a href="/posts/batchbase5/">스프링 배치 - 5 청크 지향 처리</a></ul></div><div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/algorithm/">algorithm</a> <a class="post-tag" href="/tags/python3/">python3</a> <a class="post-tag" href="/tags/boj/">boj</a> <a class="post-tag" href="/tags/problem/">problem</a> <a class="post-tag" href="/tags/%EB%B0%B1%EC%A4%80/">백준</a> <a class="post-tag" href="/tags/spring/">spring</a> <a class="post-tag" href="/tags/springboot/">springboot</a> <a class="post-tag" href="/tags/java/">java</a> <a class="post-tag" href="/tags/spring-mvc/">spring mvc</a> <a class="post-tag" href="/tags/springframework/">springframework</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/posts/kotlinGenerics1/"><div class="card-body"> <span class="timeago small" > Oct 2, 2021 <i class="unloaded">2021-10-02T12:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>코틀린 지네릭스 - 1</h3><div class="text-muted small"><p> Variant in Java 가장 먼저 다음의 상황을 가정해 보자. 1 - Animal이라는 클래스를 상속한 Dog이라는 클래스가 존재한다. 2 - Group 라는 지네릭 인터페이스가 존재하며, 다음과 같은 추상 메서드가 존재한다 void insert(T item) T fetch() 이를 사용...</p></div></div></a></div><div class="card"> <a href="/posts/kotlinGenerics2/"><div class="card-body"> <span class="timeago small" > Oct 2, 2021 <i class="unloaded">2021-10-02T13:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>코틀린 지네릭스 - 2</h3><div class="text-muted small"><p> In Out 지난 내용을 요약하면 in / out으로 지네릭에 flexibility를 주는 것을 보았다. projected된 지네릭 파라미터를 읽고싶을 때에는 out을 사용하고, 이를 내부에서 사용하고 싶을때에는 in이라는 키워드를 사용하면 된다. 하지만 이런 궁금증도 든다, 이 둘을 동시에 사용하는 방법이 있을까?? 가장 먼저 생각할 수 있는 ...</p></div></div></a></div><div class="card"> <a href="/posts/kotlinCompanionObject/"><div class="card-body"> <span class="timeago small" > Oct 4, 2021 <i class="unloaded">2021-10-04T13:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>코틀린의 CompanionObject vs 자바 Static</h3><div class="text-muted small"><p> Kotlin + Companion Object 출처 출처2 코틀린에서의 Companion Object는 자바의 Static과 엄연히 다르다. 그렇다면 왜 기존의 Static을 쓰지 않고 코틀린에와서 이렇게 넘어오게 됬는지, 그 연유를 찾아 올라가면 알 수 있지 않을까? 자바의 Static &amp; 코틀린의 Object 자바에서의 static...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/posts/mysql1/" class="btn btn-outline-primary" prompt="Older"><p>DB의 트랜잭션 (1) 트랜잭션의 성질</p></a> <a href="/posts/kotlinGenerics1/" class="btn btn-outline-primary" prompt="Newer"><p>코틀린 지네릭스 - 1</p></a></div></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2022 <a href="https://twitter.com/username">vitriol</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">Trending Tags</h4><a class="post-tag" href="/tags/algorithm/">algorithm</a> <a class="post-tag" href="/tags/python3/">python3</a> <a class="post-tag" href="/tags/boj/">boj</a> <a class="post-tag" href="/tags/problem/">problem</a> <a class="post-tag" href="/tags/%EB%B0%B1%EC%A4%80/">백준</a> <a class="post-tag" href="/tags/spring/">spring</a> <a class="post-tag" href="/tags/springboot/">springboot</a> <a class="post-tag" href="/tags/java/">java</a> <a class="post-tag" href="/tags/spring-mvc/">spring mvc</a> <a class="post-tag" href="/tags/springframework/">springframework</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://vitriol95.github.io{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>
